@@ -1,0 +1,29 @@
+{
+  "name": "river-event-stream",
+  "description": "Event Stream adapter for the River stream processing lib",
+  "version": "0.1.0",
+  "author": {
+    "name": "Andy Kent",
+    "email": "andy.kent@me.com",
+    "url": "http://adkent.com"
+  },
+  "directories": {
+    "lib": "./lib"
+  },
+  "dependencies": {
+    "coffee-script": "~1.3.3",
+    "river": "~0.3.4",
+    "event-stream": "~3.0.5"
+  },
+  "devDependencies": {
+    "mocha": "1.3.0",
+    "should": "1.0.0"
+  },
+  "engines": [
+    "node"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/andykent/river-event-stream.git"
+  }
+}
