@@ -6,12 +6,16 @@ class RiverEventStream
     @ctx = river.createContext()
     @query = @ctx.addQuery(queryString)
     @registered = false
+    @multiplexed = options.multiplexed or false
     @streamName = options.streamName or 'stream'
     @includeInserts = if options.includeInserts? then !!options.includeInserts else true
     @includeRemoves = !!options.includeRemoves
 
   push: (data) ->
-    @ctx.push(@streamName, data)
+    if @multiplexed
+      @ctx.push(data[0], data[1])
+    else
+      @ctx.push(@streamName, data)
 
   emitTo: (stream) ->
     return if @registered

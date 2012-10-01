@@ -1,7 +1,7 @@
 es = require('event-stream')
 es.query = require('../lib/river-event-stream')
 
-input =  ->
+people =  ->
   es.readArray([
     {name: 'Andy',  age: 28}
     {name: 'Sunny', age: 29}
@@ -13,6 +13,13 @@ checkOutput = (done, expected) ->
     actual.should.eql(expected)
     done(err)
 
+multipexed = ->
+  es.readArray([
+    ['people', {name: 'Andy',  city: 'London'}]
+    ['cities',  {name: 'London'}]
+    ['people', {name: 'Mark',  city: 'Bournemouth'}]
+    ['cities',  {name: 'Bournemouth'}]
+  ])
 
 
 
@@ -24,7 +31,7 @@ describe "River Event Stream", ->
 
   it "modifies a stream", (done) ->
     es.pipeline(
-      input(),
+      people(),
       es.query('SELECT name FROM stream'),
       checkOutput(done, [
         {name:'Andy'}
@@ -36,7 +43,7 @@ describe "River Event Stream", ->
 
   it "filters a stream", (done) ->
     es.pipeline(
-      input(),
+      people(),
       es.query('SELECT name FROM stream WHERE name = "Andy"'),
       checkOutput(done, [
         {name:'Andy'}
@@ -44,10 +51,9 @@ describe "River Event Stream", ->
     )
 
 
-
   it "agreggates a stream", (done) ->
     es.pipeline(
-      input(),
+      people(),
       es.query('SELECT sum(age) as totalAge FROM stream'),
       checkOutput(done, [
         {totalAge: 28}
@@ -57,10 +63,9 @@ describe "River Event Stream", ->
     )
 
 
-
   it "emits labelled remove events when requested", (done) ->
     es.pipeline(
-      input(),
+      people(),
       es.query('SELECT sum(age) as totalAge FROM stream', {includeRemoves: true}),
       checkOutput(done, [
         ['insert', {totalAge: 28}]
@@ -71,10 +76,20 @@ describe "River Event Stream", ->
       ])
     )
 
+
   it "allows naming streams with streamName", (done) ->
     es.pipeline(
-      input(),
+      people(),
       es.query('SELECT name FROM people WHERE name = "Andy"', streamName: 'people'),
+      checkOutput(done, [
+        {name:'Andy'}
+      ])
+    )
+
+  it "allows multiplexing streams", (done) ->
+    es.pipeline(
+      multipexed(),
+      es.query("SELECT people.name AS name FROM people JOIN cities ON people.city = cities.name", multiplexed: true),
       checkOutput(done, [
         {name:'Andy'}
       ])
