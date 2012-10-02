@@ -89,7 +89,7 @@ describe "River Event Stream", ->
   it "allows multiplexing streams", (done) ->
     es.pipeline(
       multipexed(),
-      es.query("SELECT people.name AS name FROM people JOIN cities ON people.city = cities.name", multiplexed: true),
+      es.query("SELECT people.name AS name FROM people JOIN cities ON people.city = cities.name WHERE cities.name = 'London'", multiplexed: true),
       checkOutput(done, [
         {name:'Andy'}
       ])
